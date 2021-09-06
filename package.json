@@ -1,0 +1,27 @@
+{
+  "name": "parallel-scan",
+  "version": "1.0.0",
+  "description": "Parallel scanner",
+  "repository": "https://github.com/parallel-finance/parallel-scan",
+  "author": "Parallel Authors",
+  "license": "private",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "devDependencies": {
+    "husky": "^7.0.2",
+    "lint-staged": "^11.1.2"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{js,json,css,md}": [
+      "prettier --write",
+      "git add"
+    ]
+  }
+}

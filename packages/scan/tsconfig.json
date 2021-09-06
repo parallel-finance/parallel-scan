@@ -1,0 +1,34 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "moduleResolution": "Node",
+    "module": "commonjs",
+    "outDir": "./releases",
+    "types": ["node"],
+    "lib": ["ESNext"],
+    "removeComments": true,
+    "noImplicitAny": false,
+    "esModuleInterop": true,
+    "preserveConstEnums": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "typeRoots": ["node_modules/@types", "typings"],
+    "baseUrl": ".",
+    "paths": {
+      "configs": ["configs"],
+      "app": ["app"]
+    },
+    "plugins": [
+      {
+        "transform": "typescript-transform-paths"
+      }
+    ]
+  },
+  "compileOnSave": false,
+  "includes": ["app/**/*", "configs/**/*", "**/*.ts", "**/*.tsx"],
+  "files": [
+    "index.ts"
+    /* "configs/connection.ts" */
+  ],
+  "exclude": ["node_modules", "dist"]
+}
