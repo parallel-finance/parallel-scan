@@ -24,6 +24,9 @@ export class Store {
     return new Store(client)
   }
 
+  /**
+   * Helper function to get internal state
+   */
   async state(): Promise<InternalState> {
     const col = this.cols.internalState
     return (await col.findOne()) || { lastBlock: 0 }
@@ -33,11 +36,15 @@ export class Store {
     await this.client.close()
   }
 
+  /**
+   * Drop document from given block number(include).
+   * @param blockNumber - Document will be deleted from where.
+   */
   async dropBlockFrom(blockNumber: number) {
     keys<CollectionMap>()
       .filter((v) => !v.startsWith('internal'))
-      .forEach((key) => {
-        this.cols[key].deleteMany({ blockHeight: { $gte: blockNumber } })
+      .forEach(async (key) => {
+        await this.cols[key].deleteMany({ blockHeight: { $gte: blockNumber } })
       })
   }
 }

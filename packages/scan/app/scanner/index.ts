@@ -1,6 +1,6 @@
 import { options } from '@parallel-finance/api'
 import { ApiPromise, WsProvider } from '@polkadot/api'
-import { State } from '../model/state'
+import { BlockHash } from '@polkadot/types/interfaces'
 
 export class Scanner {
   private api: ApiPromise
@@ -18,6 +18,9 @@ export class Scanner {
   }
 
   async getBlockHash(blockNumber: number) {
-    const height = await this.api.rpc.chain.getBlockHash(blockNumber)
+    const hash = await this.api.rpc.chain.getBlockHash(blockNumber)
+    return hash
   }
+
+  async processBlock(hash: BlockHash) {}
 }
