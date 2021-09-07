@@ -1,5 +1,7 @@
+import { BlockHash } from '@polkadot/types/interfaces'
 import { Scanner } from './scanner'
 import { Store } from './store'
+import { sleep } from './utils'
 
 interface ServiceOption {
   endpoint: string
@@ -18,10 +20,35 @@ export class Service {
   static async build({ endpoint, url }: ServiceOption) {
     const scanner = await Scanner.create(endpoint)
     const db = await Store.create(url)
-    return new Service(scanner, db)
+    const service = new Service(scanner, db)
+    await service.restore()
+    return service
   }
 
   async run() {
     //TODO(Alan WANG): process events
+    while (true) {
+      const hash = await this.upcomingBlockHash()
+      await this.scanner.processBlock(hash)
+    }
+  }
+
+  private async restore() {
+    // This block is ok cause it's committed at the last of workflow.
+    const { lastBlock } = await this.db.state()
+    await this.db.dropBlockFrom(lastBlock + 1)
+  }
+
+  private async upcomingBlockHash() {
+    const { lastBlock } = await this.db.state()
+    while (true) {
+      try {
+        const hash = await this.scanner.getBlockHash(lastBlock + 1)
+        return hash
+      } catch {
+        // It means the last block is the newest
+        await sleep(1000)
+      }
+    }
   }
 }
