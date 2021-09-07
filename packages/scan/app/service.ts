@@ -27,9 +27,17 @@ export class Service {
 
   async run() {
     //TODO(Alan WANG): process events
+    const onRevert = async (newHead: number) => {
+      await this.db.setLastBlock(newHead)
+      await this.db.dropBlockFrom(newHead + 1)
+    }
     while (true) {
       const hash = await this.upcomingBlockHash()
-      await this.scanner.processBlock(hash)
+      await this.scanner.processBlock(
+        hash,
+        onRevert,
+        this.db.handleEvent.bind(this.db)
+      )
     }
   }
 
