@@ -1,3 +1,3 @@
-export type InternalState = {
+export interface InternalState {
   lastBlock: number
 }

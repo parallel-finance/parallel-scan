@@ -1,5 +1,4 @@
 import { Db, MongoClient, Collection } from 'mongodb'
-import { keys } from 'ts-transformer-keys'
 import { CollectionKey, CollectionOf } from '../model'
 import { InternalState } from '../model/internal'
 
@@ -13,7 +12,7 @@ export class Store {
   private constructor(client: MongoClient) {
     this.db = client.db('parallel-scan')
     this.client = client
-    for (let key of keys<CollectionMap>()) {
+    for (let key in CollectionKey) {
       this.cols[key] = this.db.collection<CollectionOf<typeof key>>(key)
     }
   }
@@ -32,6 +31,11 @@ export class Store {
     return (await col.findOne()) || { lastBlock: 0 }
   }
 
+  async setLastBlock(newHead: number) {
+    const col = this.cols.internalState
+    await col.updateOne({}, { $set: { lastBlock: newHead } }, { upsert: true })
+  }
+
   async close() {
     await this.client.close()
   }
@@ -41,10 +45,11 @@ export class Store {
    * @param blockNumber - Document will be deleted from where.
    */
   async dropBlockFrom(blockNumber: number) {
-    keys<CollectionMap>()
-      .filter((v) => !v.startsWith('internal'))
-      .forEach(async (key) => {
-        await this.cols[key].deleteMany({ blockHeight: { $gte: blockNumber } })
-      })
+    for (const key in CollectionKey) {
+      if (key.startsWith('internal')) continue
+      await this.cols[key].deleteMany({ blockHeight: { $gte: blockNumber } })
+    }
   }
+
+  async handleEvent(event: any) {}
 }
