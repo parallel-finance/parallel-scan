@@ -1,5 +1,5 @@
-import { State } from './state'
+import { InternalState } from './internal'
 
-export type CollectionKey = 'state'
+export type CollectionKey = 'internalState'
 
-export type CollectionOf<T> = T extends 'state' ? State : never
+export type CollectionOf<T> = T extends 'internalState' ? InternalState : never
