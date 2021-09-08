@@ -44,10 +44,7 @@ export class Service {
         continue
       }
       await this.scanner.processBlock(hash, this.db.insertRecord.bind(this.db))
-      await this.db.insertRecord('blockInfo', {
-        blockHeight: blockNumber,
-        hash: hash.toString(),
-      })
+      await this.db.setLastBlock(blockNumber, hash.toHex())
       logger.debug(`Block#${blockNumber} indexed`)
     }
   }
@@ -65,10 +62,7 @@ export class Service {
 
     const genesisHash = await this.api.rpc.chain.getBlockHash(0)
     logger.debug(`Init genesis blcok: ${genesisHash.toHex()}`)
-    await this.db.insertRecord('blockInfo', {
-      blockHeight: 0,
-      hash: genesisHash.toHex(),
-    })
+    await this.db.setLastBlock(0, genesisHash.toHex())
   }
 
   private async upcomingBlock(): Promise<[number, BlockHash]> {
