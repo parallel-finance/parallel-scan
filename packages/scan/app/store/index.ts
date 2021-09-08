@@ -1,4 +1,4 @@
-import { Task } from 'app/task'
+import { Task } from '../types'
 import { Db, MongoClient } from 'mongodb'
 import { CollectionKey, CollectionOf } from '../model'
 import { BlockInfo } from '../model/blockInfo'
