@@ -1,9 +1,9 @@
 import { Command } from 'commander'
+import { Service } from 'app/service'
 
 interface Options {
   endpoint: string
   url: string
-  port: string
 }
 
 const program = new Command('parallel-scan')
@@ -15,11 +15,12 @@ program
     'wss://testnet.parallel.fi'
   )
   .option('--url <string>', 'The mongodb url')
-  .option('--port <string>', 'The mongodb port mongodb')
 
 async function main() {
   program.parse()
   let options = program.opts<Options>()
+  let service = await Service.build(options)
+  await service.run()
 }
 
 main().catch(console.error)

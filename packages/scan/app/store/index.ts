@@ -1,20 +1,14 @@
-import { Db, MongoClient, Collection } from 'mongodb'
+import { Db, MongoClient } from 'mongodb'
 import { CollectionKey, CollectionOf } from '../model'
-import { InternalState } from '../model/internal'
-
-type CollectionMap = { [key in CollectionKey]: Collection<CollectionOf<key>> }
+import { BlockInfo } from '../model/blockInfo'
 
 export class Store {
   private client: MongoClient
   private db: Db
-  public cols: CollectionMap
 
   private constructor(client: MongoClient) {
     this.db = client.db('parallel-scan')
     this.client = client
-    for (let key in CollectionKey) {
-      this.cols[key] = this.db.collection<CollectionOf<typeof key>>(key)
-    }
   }
 
   static async create(url: string) {
@@ -23,17 +17,16 @@ export class Store {
     return new Store(client)
   }
 
+  getCols<T extends CollectionKey>(key: T) {
+    return this.db.collection<CollectionOf<T>>(key)
+  }
+
   /**
    * Helper function to get internal state
    */
-  async state(): Promise<InternalState> {
-    const col = this.cols.internalState
-    return (await col.findOne()) || { lastBlock: 0 }
-  }
-
-  async setLastBlock(newHead: number) {
-    const col = this.cols.internalState
-    await col.updateOne({}, { $set: { lastBlock: newHead } }, { upsert: true })
+  async lastBlockInfo(): Promise<BlockInfo | null> {
+    const col = this.getCols('blockInfo')
+    return await col.find().sort({ blockHeight: -1 }).limit(1).next()
   }
 
   async close() {
@@ -41,15 +34,19 @@ export class Store {
   }
 
   /**
-   * Drop document from given block number(include).
+   * Drop document from given block number.
    * @param blockNumber - Document will be deleted from where.
    */
-  async dropBlockFrom(blockNumber: number) {
-    for (const key in CollectionKey) {
-      if (key.startsWith('internal')) continue
-      await this.cols[key].deleteMany({ blockHeight: { $gte: blockNumber } })
+  async resetTo(height: number) {
+    const collections: CollectionKey[] = ['blockInfo']
+    for (const key of collections) {
+      await this.getCols(key).deleteMany({
+        blockHeight: { $gt: height },
+      })
     }
   }
 
-  async handleEvent(event: any) {}
+  async insertRecord<T extends CollectionKey>(key: T, record: CollectionOf<T>) {
+    await this.getCols(key).insertOne(record as any)
+  }
 }
