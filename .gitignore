@@ -1,4 +1,5 @@
 releases/
+logs/
 node_modules/
 .yarn
 *.cjs

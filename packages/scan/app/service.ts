@@ -21,6 +21,7 @@ export class Service {
     await this.restore()
     while (true) {
       const [blockNumber, hash] = await this.upcomingBlock()
+      logger.debug(`Receive upcoming block#${blockNumber}: ${hash.toString()}`)
 
       /// Revert to nearest finalized block
       if (await this.isForkedBlock(hash)) {
@@ -28,7 +29,7 @@ export class Service {
         await this.revertToFinalized()
         continue
       }
-      await scanner.processBlock(hash)
+      await scanner.processBlock(hash, blockNumber)
       await store.setLastBlock(blockNumber, hash.toHex())
       logger.debug(`Block#${blockNumber} indexed`)
     }
@@ -51,22 +52,23 @@ export class Service {
   }
 
   private async upcomingBlock(): Promise<[number, BlockHash]> {
-    const { blockHeight } = await store.lastBlockInfo()
+    const { blockHeight } = (await store.lastBlockInfo())!
     const currentBlockNumber = blockHeight + 1
     while (true) {
-      try {
-        const hash = await api.rpc.chain.getBlockHash(currentBlockNumber)
+      const hash = await api.rpc.chain.getBlockHash(currentBlockNumber)
+      if (
+        hash.toString() !==
+        '0x0000000000000000000000000000000000000000000000000000000000000000'
+      ) {
         return [currentBlockNumber, hash]
-      } catch {
-        // It means the last block is the newest
-        logger.debug('Waiting for new block ...')
-        await sleep(1000)
       }
+      logger.debug('Waiting for new block ...')
+      await sleep(6000)
     }
   }
 
   private async isForkedBlock(hash: BlockHash) {
-    const { hash: lastHash } = await store.lastBlockInfo()
+    const { hash: lastHash } = (await store.lastBlockInfo())!
     const { parentHash } = await api.rpc.chain.getHeader(hash)
     return parentHash.toHex() !== lastHash
   }

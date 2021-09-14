@@ -9,11 +9,7 @@ interface Options {
 const program = new Command('parallel-scan')
 program
   .version('0.0.1', '-v, --version', 'The parallel scanner version.')
-  .option(
-    '--endpoint <string>',
-    'Parallel endpoint',
-    'wss://test-para-rpc.parallel.fi'
-  )
+  .option('--endpoint <string>', 'Parallel endpoint', 'ws://localhost:9947')
   .option('--url <string>', 'The mongodb url', 'mongodb://localhost:27017')
 
 async function main() {
