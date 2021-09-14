@@ -21,16 +21,17 @@ export class Store {
     return this.db.collection<CollectionOf<T>>(key)
   }
 
+  async getNewestRecordOf<T extends CollectionKey>(key: T) {
+    const col = this.getCols(key)
+    return await col.findOne({}, { sort: { blockHeight: -1 } })
+  }
+
   async setLastBlock(height: number, hash: string) {
     await this.getCols('blockInfo').insertOne({ blockHeight: height, hash })
   }
 
-  /**
-   * Helper function to get internal state
-   */
   async lastBlockInfo(): Promise<BlockInfo | null> {
-    const col = this.getCols('blockInfo')
-    return await col.find().sort({ blockHeight: -1 }).limit(1).next()
+    return await this.getNewestRecordOf('blockInfo')
   }
 
   async close() {

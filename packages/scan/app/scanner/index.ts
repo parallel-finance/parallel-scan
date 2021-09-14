@@ -10,18 +10,20 @@ class Scanner {
     this.handlers = eventHandlers
   }
 
-  async handleEvent(event: Event) {
+  async handleEvent(event: Event, height: number) {
     const { section, method } = event
     if (!this.handlers[section] || !this.handlers[section][method]) {
       return
     }
     const handler = this.handlers[section][method]
-    await handler(event)
+    await handler(event, height)
   }
 
-  async processBlock(hash: BlockHash) {
+  async processBlock(hash: BlockHash, height: number) {
     const events = await api.query.system.events.at(hash)
-    await Promise.all(events.map(({ event }) => this.handleEvent(event)))
+    await Promise.all(
+      events.map(({ event }) => this.handleEvent(event, height))
+    )
   }
 }
 
