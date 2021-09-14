@@ -1,4 +1,3 @@
-import { Task } from '../types'
 import { Db, MongoClient } from 'mongodb'
 import { CollectionKey, CollectionOf } from '../model'
 import { BlockInfo } from '../model/blockInfo'
@@ -12,10 +11,10 @@ export class Store {
     this.client = client
   }
 
-  static async create(url: string) {
+  static async init(url: string) {
     const client = new MongoClient(url)
     await client.connect()
-    return new Store(client)
+    store = new Store(client)
   }
 
   getCols<T extends CollectionKey>(key: T) {
@@ -23,13 +22,7 @@ export class Store {
   }
 
   async setLastBlock(height: number, hash: string) {
-    this.insertRecord({
-      col: 'blockInfo',
-      record: {
-        blockHeight: height,
-        hash,
-      },
-    })
+    await this.getCols('blockInfo').insertOne({ blockHeight: height, hash })
   }
 
   /**
@@ -56,8 +49,6 @@ export class Store {
       })
     }
   }
-
-  async insertRecord(task: Task) {
-    await this.getCols(task.col).insertOne(task.record)
-  }
 }
+
+export let store: Store
