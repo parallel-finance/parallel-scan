@@ -9,6 +9,7 @@
     "removeComments": true,
     "noImplicitAny": false,
     "esModuleInterop": true,
+    "target": "ESNext",
     "preserveConstEnums": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,

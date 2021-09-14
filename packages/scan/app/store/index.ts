@@ -11,14 +11,18 @@ export class Store {
     this.client = client
   }
 
-  static async create(url: string) {
+  static async init(url: string) {
     const client = new MongoClient(url)
     await client.connect()
-    return new Store(client)
+    store = new Store(client)
   }
 
   getCols<T extends CollectionKey>(key: T) {
     return this.db.collection<CollectionOf<T>>(key)
+  }
+
+  async setLastBlock(height: number, hash: string) {
+    await this.getCols('blockInfo').insertOne({ blockHeight: height, hash })
   }
 
   /**
@@ -45,8 +49,6 @@ export class Store {
       })
     }
   }
-
-  async insertRecord<T extends CollectionKey>(key: T, record: CollectionOf<T>) {
-    await this.getCols(key).insertOne(record as any)
-  }
 }
+
+export let store: Store

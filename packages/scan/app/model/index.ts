@@ -1,10 +1,10 @@
 import { BlockInfo } from './blockInfo'
-import { InternalState } from './internal'
+import { Staker } from './staker'
 
-export type CollectionKey = 'internalState' | 'blockInfo'
+export type CollectionKey = 'blockInfo' | 'staker'
 
-export type CollectionOf<T extends CollectionKey> = T extends 'internalState'
-  ? InternalState
-  : T extends 'blockInfo'
+export type CollectionOf<T> = T extends 'blockInfo'
   ? BlockInfo
+  : T extends 'staker'
+  ? Staker
   : never

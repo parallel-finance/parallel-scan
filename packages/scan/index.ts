@@ -1,5 +1,5 @@
 import { Command } from 'commander'
-import { Service } from 'app/service'
+import { Service } from './app/service'
 
 interface Options {
   endpoint: string
@@ -12,14 +12,14 @@ program
   .option(
     '--endpoint <string>',
     'Parallel endpoint',
-    'wss://testnet.parallel.fi'
+    'wss://test-para-rpc.parallel.fi'
   )
-  .option('--url <string>', 'The mongodb url')
+  .option('--url <string>', 'The mongodb url', 'mongodb://localhost:27017')
 
 async function main() {
   program.parse()
   let options = program.opts<Options>()
-  let service = await Service.build(options)
+  const service = await Service.build(options)
   await service.run()
 }
 

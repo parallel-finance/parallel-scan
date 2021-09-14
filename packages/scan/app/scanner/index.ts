@@ -1,30 +1,28 @@
-import { ApiPromise } from '@polkadot/api'
-import { BlockHash, EventRecord } from '@polkadot/types/interfaces'
-import { CollectionKey, CollectionOf } from '../model'
+import { BlockHash, Event } from '@polkadot/types/interfaces'
+import eventHandlers from './events'
+import { EventHandler } from '../types'
+import { api } from '../api'
 
-type Operator<T extends CollectionKey> = (
-  key: T,
-  record: CollectionOf<T>
-) => Promise<void>
+class Scanner {
+  private handlers: { [section: string]: { [method: string]: EventHandler } }
 
-export class Scanner {
-  private api: ApiPromise
-  constructor(api: ApiPromise) {
-    this.api = api
+  constructor() {
+    this.handlers = eventHandlers
   }
 
-  async handleEvent<T extends CollectionKey>(
-    event: EventRecord,
-    operator: Operator<T>
-  ) {
-    return
+  async handleEvent(event: Event) {
+    const { section, method } = event
+    if (!this.handlers[section] || !this.handlers[section][method]) {
+      return
+    }
+    const handler = this.handlers[section][method]
+    await handler(event)
   }
 
-  async processBlock<T extends CollectionKey>(
-    hash: BlockHash,
-    operator: Operator<T>
-  ) {
-    const events = await this.api.query.system.events.at(hash)
-    await Promise.all(events.map((e) => this.handleEvent(e, operator)))
+  async processBlock(hash: BlockHash) {
+    const events = await api.query.system.events.at(hash)
+    await Promise.all(events.map(({ event }) => this.handleEvent(event)))
   }
 }
+
+export const scanner = new Scanner()
