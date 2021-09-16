@@ -4,7 +4,7 @@ import { Service } from './app/service'
 interface Options {
   endpoint: string
   url: string
-  initBlockNumber: number
+  blockNumber: number
 }
 
 const program = new Command('parallel-scan')
@@ -13,8 +13,8 @@ program
   .option('--endpoint <string>', 'Parallel endpoint', 'ws://localhost:9947')
   .option('--url <string>', 'The mongodb url', 'mongodb://localhost:27017')
   .option(
-    '-n, --init-block-number <number>',
-    'The block number where scanning from',
+    '-N, --block-number <number>',
+    'The block number where we scan from',
     '0'
   )
 
