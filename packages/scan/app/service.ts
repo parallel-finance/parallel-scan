@@ -14,6 +14,7 @@ interface ServiceOption {
 export class Service {
   static initBlockHeight: number
   static async build({ endpoint, url, blockNumber }: ServiceOption) {
+    logger.debug(`Build Service url:${url}, endpoint:${endpoint}, blockNumber:${blockNumber}`)
     await Api.init(endpoint)
     await Store.init(url)
     this.initBlockHeight = blockNumber
@@ -21,6 +22,9 @@ export class Service {
   }
 
   async run() {
+    // debug a given block
+    await this.pollBlock(10)
+    
     await this.restore()
     while (true) {
       const [blockNumber, hash] = await this.upcomingBlock()
@@ -32,10 +36,19 @@ export class Service {
         await this.revertToFinalized()
         continue
       }
+      
       await scanner.processBlock(hash, blockNumber)
       await store.setLastBlock(blockNumber, hash.toHex())
       logger.debug(`Block#${blockNumber} indexed`)
     }
+  }
+  
+  private async pollBlock(height) {
+    const [blockNumber, hash] = await this.specificBlock(height)
+    
+    logger.debug(`Poll specific block#${blockNumber}: ${hash.toString()}`)
+    await scanner.processBlock(hash, blockNumber)
+    logger.debug(`Block#${blockNumber} indexed`)
   }
 
   private async restore() {
@@ -66,6 +79,21 @@ export class Service {
         '0x0000000000000000000000000000000000000000000000000000000000000000'
       ) {
         return [currentBlockNumber, hash]
+      }
+      logger.debug('Waiting for new block ...')
+      await sleep(6000)
+    }
+  }
+  
+  private async specificBlock(height: number): Promise<[number, BlockHash]> {
+    const blockHeight = height
+    while (true) {
+      const hash = await api.rpc.chain.getBlockHash(blockHeight)
+      if (
+        hash.toString() !==
+        '0x0000000000000000000000000000000000000000000000000000000000000000'
+      ) {
+        return [blockHeight, hash]
       }
       logger.debug('Waiting for new block ...')
       await sleep(6000)
