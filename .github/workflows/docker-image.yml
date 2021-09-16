@@ -29,13 +29,13 @@ jobs:
           if_true: ${{ steps.git_tag.outputs.tag }}
           if_false: 'latest'
       - name: Build releases
-        run: yarn workspace @parallel-finance/scan build
+        run: yarn && yarn workspace @parallel-finance/scan build
       - name: Build and push
         id: docker_build
         uses: docker/build-push-action@v2
         with:
           context: packages/scan
-          file: Dockerfile
+          file: packages/scan/Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_ORGNAME }}/parallel-scan:${{ steps.docker_tag.outputs.value }}
       - name: Image digest
