@@ -8,12 +8,15 @@ import { Api, api } from './api'
 interface ServiceOption {
   endpoint: string
   url: string
+  blockNumber: number
 }
 
 export class Service {
-  static async build({ endpoint, url }: ServiceOption) {
+  static initBlockHeight: number
+  static async build({ endpoint, url, blockNumber }: ServiceOption) {
     await Api.init(endpoint)
     await Store.init(url)
+    this.initBlockHeight = blockNumber
     return new Service()
   }
 
@@ -46,7 +49,9 @@ export class Service {
       return
     }
 
-    const genesisHash = await api.rpc.chain.getBlockHash(0)
+    const genesisHash = await api.rpc.chain.getBlockHash(
+      Service.initBlockHeight
+    )
     logger.debug(`Init genesis blcok: ${genesisHash.toHex()}`)
     await store.setLastBlock(0, genesisHash.toHex())
   }
