@@ -29,7 +29,7 @@ jobs:
           if_true: ${{ steps.git_tag.outputs.tag }}
           if_false: 'latest'
       - name: Build releases
-        run: yarn workspace @parallel-finance/scan build
+        run: yarn && yarn workspace @parallel-finance/scan build
       - name: Build and push
         id: docker_build
         uses: docker/build-push-action@v2
