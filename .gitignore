@@ -1,6 +1,5 @@
-releases/
+.yarn
 logs/
 node_modules/
-.yarn
-*.cjs
 .vim
+
