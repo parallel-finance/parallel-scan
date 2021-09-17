@@ -4,23 +4,23 @@ import { AccountId, Liquidity, Shortfall } from '@parallel-finance/types/interfa
 import * as lds from 'lodash';
 import { logger } from '../../../app/logger';
 
-type ShortfallRecord = {
-  borrower: AccountId;
-  liquidity: Liquidity;
-  shortfall: Shortfall;
-  status: boolean;
+export type ShortfallRecord = {
+  borrower: string;
+  liquidity: string;
+  shortfall: string;
+  status: number;
 }
 
-class LiquidationSolver {
+export class LiquidationSolver {
     private shorfallRecords
-    
-    public async liquidate(api: ApiPromise, blockNumber: number) {
-      logger.debug(`Liquidate block#${blockNumber}`)
 
+    public async liquidate(api: ApiPromise, blockNumber: number): Promise<Array<ShortfallRecord>> {
+      logger.debug(`Liquidating... block#${blockNumber}`)
       const shorfallRecords = await this.accountsLiquidity(api);
       this.shorfallRecords = JSON.stringify(shorfallRecords);
-
       logger.debug(`shorfallRecords: ${shorfallRecords.length? this.shorfallRecords : "None" }`)
+
+      return this.shorfallRecords
     }
     
     async accountsLiquidity(api: ApiPromise) {
@@ -44,11 +44,11 @@ class LiquidationSolver {
         const accountLiquidity: [Liquidity, Shortfall] = await api.rpc.loans.getAccountLiquidity(accountId, null);
 
         const shorfallRecord: ShortfallRecord = {
-          borrower: accountId,
-          liquidity: accountLiquidity[0],
-          shortfall: accountLiquidity[1],
+          borrower: accountId.toString(),
+          liquidity: accountLiquidity[0].toString(),
+          shortfall: accountLiquidity[1].toString(),
           // Retrieve only non-zero shortfall
-          status: !accountLiquidity[1].toBn().isZero()
+          status: !accountLiquidity[1].toBn().isZero() ? 1 : 0
         }
 
         return shorfallRecord
@@ -56,4 +56,4 @@ class LiquidationSolver {
     }
 }
 
-export let liquidationSolver: LiquidationSolver
+export const liquidationSolver = new LiquidationSolver()

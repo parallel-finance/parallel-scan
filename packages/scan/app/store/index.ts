@@ -1,7 +1,7 @@
 import { Db, MongoClient } from 'mongodb'
 import { CollectionKey, CollectionOf } from '../model'
 import { BlockInfo } from '../model/blockInfo'
-
+import { ShortfallRecord } from '../scanner/solvers/liquidation'
 export class Store {
   private client: MongoClient
   private db: Db
@@ -17,13 +17,17 @@ export class Store {
     store = new Store(client)
   }
 
-  getCols<T extends CollectionKey>(key: T): any {
+  getCols<T extends CollectionKey>(key: T) {
     return this.db.collection<CollectionOf<T>>(key)
   }
 
   async getNewestRecordOf<T extends CollectionKey>(key: T) {
     const col = this.getCols(key)
     return await col.findOne({}, { sort: { blockHeight: -1 } })
+  }
+
+  async setLastShortfallRecords(height: number, shortfallRecords: ShortfallRecord[]): Promise<void> {
+    await this.getCols('liquidation').insertOne({ blockHeight: height, shortfallRecords})
   }
 
   async setLastBlock(height: number, hash: string) {
