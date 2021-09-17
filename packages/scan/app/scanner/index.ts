@@ -7,6 +7,7 @@ class Scanner {
   async processBlock(hash: BlockHash, height: number) {
     const events = await api.query.system.events.at(hash)
     const { block } = await api.rpc.chain.getBlock(hash)
+    const timestamp = await api.query.timestamp.now.at(hash)
 
     await Promise.all([
       block.extrinsics.map(async (ex, index) => {
@@ -46,6 +47,7 @@ class Scanner {
             account: who0,
             referralCode: memo,
             extrinsicHash: ex.hash.toHex(),
+            timestamp: timestamp.toString(),
           }
           await store.getCols('auction').insertOne(record)
         }

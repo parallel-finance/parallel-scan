@@ -5,4 +5,5 @@ export interface Auction extends CollectionCommon {
   amount: number
   referralCode: string
   extrinsicHash: string
+  timestamp: string
 }
