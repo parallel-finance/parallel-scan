@@ -4,7 +4,7 @@ import { Service } from './app/service'
 interface Options {
   endpoint: string
   url: string
-  blockNumber: number
+  blockNumber: string
 }
 
 const program = new Command('parallel-scan')
@@ -21,7 +21,11 @@ program
 async function main() {
   program.parse()
   let options = program.opts<Options>()
-  const service = await Service.build(options)
+  const service = await Service.build({
+    endpoint: options.endpoint,
+    url: options.url,
+    blockNumber: parseInt(options.blockNumber),
+  })
   await service.run()
 }
 
