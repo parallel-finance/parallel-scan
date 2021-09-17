@@ -22,8 +22,8 @@ export class Service {
   }
 
   async run() {
-    // debug a given block
-    await this.pollBlock(10)
+    // Debug a given block
+    await this.pollBlock(100720)
     
     await this.restore()
     while (true) {

@@ -20,20 +20,18 @@ class LiquidationSolver {
     
     public async liquidate(api: ApiPromise, blockNumber: number) {
       logger.debug(`Liquidate block#${blockNumber}`)
+
       const shorfallRecords = await this.accountsLiquidity(api);
-      this.shorfallRecords = shorfallRecords;
-      if (shorfallRecords.length) {
-        logger.debug(`shorfallRecords: ${shorfallRecords}`)
-      } else {
-        logger.debug(`shorfallRecords: None`)
-      }
+      this.shorfallRecords = JSON.stringify(shorfallRecords);
+
+      logger.debug(`shorfallRecords: ${shorfallRecords.length? this.shorfallRecords : "None" }`)
     }
     
     async accountsLiquidity(api: ApiPromise) {
       return await this.scanShortfallRecords(api); 
     }
     
-    async scanShortfallRecords(api: ApiPromise): Promise<Array<AccountId>> {
+    async scanShortfallRecords(api: ApiPromise): Promise<Array<ShortfallRecord>> {
       const borrowerKeys = await api.query.loans.accountBorrows.keys();
       let borrowers = borrowerKeys.map(({ args: [_, accountId] }) => {
         return accountId;
@@ -42,12 +40,13 @@ class LiquidationSolver {
     
       const asyncFilter = async (arr: Array<AccountId>, predicate: (a: AccountId) => Promise<ShortfallRecord>) => {
         const results = await Promise.all(arr.map(predicate));
-        return arr.filter((_v, index) => results[index]["status"]);
+        
+        return results.filter((_v, index) => results[index]["status"])
       };
 
       return await asyncFilter(borrowers, async (accountId) => {
         const accountLiquidity: [Liquidity, Shortfall] = await api.rpc.loans.getAccountLiquidity(accountId, null);
-        
+
         const shorfallRecord: ShortfallRecord = {
           borrower: accountId,
           liquidity: accountLiquidity[0],
