@@ -7,7 +7,7 @@ export class Store {
   private db: Db
 
   private constructor(client: MongoClient) {
-    this.db = client.db('parallel-scan')
+    this.db = client.db()
     this.client = client
   }
 
