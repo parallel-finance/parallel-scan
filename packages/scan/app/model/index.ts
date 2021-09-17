@@ -1,13 +1,13 @@
 import { BlockInfo } from './blockInfo'
 import { Staker } from './staker'
-import { Auction } from './auction'
+import { Crowdloan } from './crowdloan'
 
-export type CollectionKey = 'blockInfo' | 'staker' | 'auction'
+export type CollectionKey = 'blockInfo' | 'staker' | 'crowdloan'
 
 export type CollectionOf<T> = T extends 'blockInfo'
   ? BlockInfo
   : T extends 'staker'
   ? Staker
-  : T extends 'auction'
-  ? Auction
+  : T extends 'crowdloan'
+  ? Crowdloan
   : never

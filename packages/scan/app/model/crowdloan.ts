@@ -1,6 +1,6 @@
 import { CollectionCommon } from './common'
 
-export interface Auction extends CollectionCommon {
+export interface Crowdloan extends CollectionCommon {
   account: string
   amount: number
   referralCode: string

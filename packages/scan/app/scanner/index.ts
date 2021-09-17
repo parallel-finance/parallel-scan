@@ -1,6 +1,6 @@
 import { BlockHash, Call, Event, EventRecord } from '@polkadot/types/interfaces'
 import { logger } from '../logger'
-import { Auction } from '../model/auction'
+import { Crowdloan } from '../model/crowdloan'
 import { store } from '../store'
 import { api } from '../api'
 
@@ -49,7 +49,7 @@ class Scanner {
           const paraId = parseInt(index0)
           if (who0 !== who1 || index0 !== index1 || paraId !== 2085) return
 
-          let record: Auction = {
+          let record: Crowdloan = {
             blockHeight: height,
             amount: parseInt(value),
             account: who0,
@@ -58,7 +58,7 @@ class Scanner {
             extrinsicHash: ex.hash.toHex(),
             timestamp: timestamp.toString(),
           }
-          await store.getCols('auction').insertOne(record)
+          await store.getCols('crowdloan').insertOne(record)
         }
       }),
     ])
