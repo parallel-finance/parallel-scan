@@ -22,9 +22,6 @@ export class Service {
   }
 
   async run() {
-    // Debug a given block
-    await this.pollBlock(100720)
-    
     await this.restore()
     while (true) {
       const [blockNumber, hash] = await this.upcomingBlock()
@@ -43,14 +40,6 @@ export class Service {
     }
   }
   
-  private async pollBlock(height) {
-    const [blockNumber, hash] = await this.specificBlock(height)
-    
-    logger.debug(`Poll specific block#${blockNumber}: ${hash.toString()}`)
-    await scanner.processBlock(hash, blockNumber)
-    logger.debug(`Block#${blockNumber} indexed`)
-  }
-
   private async restore() {
     // This block is ok cause it's committed at the last of workflow.
     const lastBlock = await store.lastBlockInfo()
@@ -79,21 +68,6 @@ export class Service {
         '0x0000000000000000000000000000000000000000000000000000000000000000'
       ) {
         return [currentBlockNumber, hash]
-      }
-      logger.debug('Waiting for new block ...')
-      await sleep(6000)
-    }
-  }
-  
-  private async specificBlock(height: number): Promise<[number, BlockHash]> {
-    const blockHeight = height
-    while (true) {
-      const hash = await api.rpc.chain.getBlockHash(blockHeight)
-      if (
-        hash.toString() !==
-        '0x0000000000000000000000000000000000000000000000000000000000000000'
-      ) {
-        return [blockHeight, hash]
       }
       logger.debug('Waiting for new block ...')
       await sleep(6000)

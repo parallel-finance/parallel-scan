@@ -13,10 +13,6 @@ type ShortfallRecord = {
 
 class LiquidationSolver {
     private shorfallRecords
-
-    constructor() {
-
-    }
     
     public async liquidate(api: ApiPromise, blockNumber: number) {
       logger.debug(`Liquidate block#${blockNumber}`)
@@ -60,4 +56,4 @@ class LiquidationSolver {
     }
 }
 
-export const liquidationSolver = new LiquidationSolver()
+export let liquidationSolver: LiquidationSolver
