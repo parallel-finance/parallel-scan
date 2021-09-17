@@ -1,7 +1,7 @@
 import { ApiPromise } from '@polkadot/api';
 import '@parallel-finance/types';
-import { AccountId, CurrencyId, Liquidity, Shortfall, TimestampedValue, Deposits } from '@parallel-finance/types/interfaces';
-import * as _ from 'lodash';
+import { AccountId, Liquidity, Shortfall } from '@parallel-finance/types/interfaces';
+import * as lds from 'lodash';
 import { logger } from '../../../app/logger';
 
 type ShortfallRecord = {
@@ -32,7 +32,7 @@ class LiquidationSolver {
       let borrowers = borrowerKeys.map(({ args: [_, accountId] }) => {
         return accountId;
       });
-      borrowers = _.uniqWith(borrowers, _.isEqual);
+      borrowers = lds.uniqWith(borrowers, lds.isEqual);
     
       const asyncFilter = async (arr: Array<AccountId>, predicate: (a: AccountId) => Promise<ShortfallRecord>) => {
         const results = await Promise.all(arr.map(predicate));

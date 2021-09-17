@@ -11,13 +11,13 @@ export class Store {
     this.client = client
   }
 
-  static async init(url: string) {
+  static async init(url: string): Promise<void> {
     const client = new MongoClient(url)
     await client.connect()
     store = new Store(client)
   }
 
-  getCols<T extends CollectionKey>(key: T) {
+  getCols<T extends CollectionKey>(key: T): any {
     return this.db.collection<CollectionOf<T>>(key)
   }
 

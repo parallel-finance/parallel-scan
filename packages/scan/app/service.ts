@@ -13,7 +13,7 @@ interface ServiceOption {
 
 export class Service {
   static initBlockHeight: number
-  static async build({ endpoint, url, blockNumber }: ServiceOption) {
+  static async build({ endpoint, url, blockNumber }: ServiceOption): Promise<Service> {
     logger.debug(`Build Service url:${url}, endpoint:${endpoint}, blockNumber:${blockNumber}`)
     await Api.init(endpoint)
     await Store.init(url)
@@ -21,9 +21,9 @@ export class Service {
     return new Service()
   }
 
-  async run() {
+  async run(): Promise<void> {
     await this.restore()
-    while (true) {
+    for(;;) {
       const [blockNumber, hash] = await this.upcomingBlock()
       logger.debug(`Receive upcoming block#${blockNumber}: ${hash.toString()}`)
 
@@ -61,7 +61,7 @@ export class Service {
   private async upcomingBlock(): Promise<[number, BlockHash]> {
     const { blockHeight } = (await store.lastBlockInfo())!
     const currentBlockNumber = blockHeight + 1
-    while (true) {
+    for(;;) {
       const hash = await api.rpc.chain.getBlockHash(currentBlockNumber)
       if (
         hash.toString() !==
