@@ -1,5 +1,4 @@
 import express from 'express'
-const query = {}
 import { buildSchema } from 'graphql'
 import { graphqlHTTP } from 'express-graphql'
 import { Command } from 'commander'
