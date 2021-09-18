@@ -14,7 +14,7 @@ export default {
     }
 
     // update stakers field
-    let stakers = lastRecordOrDefault.stakers
+    const stakers = lastRecordOrDefault.stakers
     stakers[who] = parseInt(amount) + (stakers[who] || 0)
 
     await store.getCols('staker').updateOne(
