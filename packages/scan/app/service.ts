@@ -23,7 +23,7 @@ export class Service {
 
   async run() {
     await this.restore()
-    while(true) {
+    while (true) {
       const [blockNumber, hash] = await this.upcomingBlock()
       logger.debug(`Receive upcoming block#${blockNumber}: ${hash.toString()}`)
 
@@ -61,7 +61,7 @@ export class Service {
   private async upcomingBlock(): Promise<[number, BlockHash]> {
     const { blockHeight } = (await store.lastBlockInfo())!
     const currentBlockNumber = blockHeight + 1
-    while(true) {
+    while (true) {
       const hash = await api.rpc.chain.getBlockHash(currentBlockNumber)
       if (
         hash.toString() !==
