@@ -12,22 +12,25 @@ export type ShortfallRecord = {
 }
 
 export class LiquidationSolver {
-    private shorfallRecords
+    private static liquidationSolver: LiquidationSolver;
+
+    public static getSolver() {
+      if (!LiquidationSolver.liquidationSolver) {
+        LiquidationSolver.liquidationSolver = new LiquidationSolver();
+      }
+  
+      return LiquidationSolver.liquidationSolver;
+    }
 
     public async liquidate(api: ApiPromise, blockNumber: number): Promise<Array<ShortfallRecord>> {
       logger.debug(`Liquidating... block#${blockNumber}`)
       const shorfallRecords = await this.accountsLiquidity(api);
-      this.shorfallRecords = JSON.stringify(shorfallRecords);
-      logger.debug(`shorfallRecords: ${shorfallRecords.length? this.shorfallRecords : "None" }`)
+      logger.debug(`shorfallRecords: ${shorfallRecords.length? JSON.stringify(shorfallRecords) : "None" }`)
 
-      return this.shorfallRecords
+      return shorfallRecords
     }
-    
-    async accountsLiquidity(api: ApiPromise) {
-      return await this.scanShortfallRecords(api); 
-    }
-    
-    async scanShortfallRecords(api: ApiPromise): Promise<Array<ShortfallRecord>> {
+
+    async accountsLiquidity(api: ApiPromise): Promise<Array<ShortfallRecord>> {
       const borrowerKeys = await api.query.loans.accountBorrows.keys();
       let borrowers = borrowerKeys.map(({ args: [_, accountId] }) => {
         return accountId;
@@ -56,4 +59,4 @@ export class LiquidationSolver {
     }
 }
 
-export const liquidationSolver = new LiquidationSolver()
+export const liquidationSolver = LiquidationSolver.getSolver()

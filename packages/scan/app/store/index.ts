@@ -11,7 +11,7 @@ export class Store {
     this.client = client
   }
 
-  static async init(url: string): Promise<void> {
+  static async init(url: string) {
     const client = new MongoClient(url)
     await client.connect()
     store = new Store(client)
