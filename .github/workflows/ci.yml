@@ -13,7 +13,8 @@ jobs:
         with:
           node-version: "15"
           cache: npm
-
+      - name: Installing dependencies
+        run: npm i
       - name: Linter
         run: npm run lint
 
