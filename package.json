@@ -27,6 +27,6 @@
     "scripts": {
         "lint": "eslint --max-warnings 0 . --ext .ts",
         "lint-and-fix": "eslint --max-warnings 0 . --ext .ts --fix",
-        "test": "jest"
+        "test": "jest --passWithNoTests"
     }
 }
