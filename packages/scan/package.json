@@ -8,7 +8,8 @@
     "scripts": {
         "build": "tsc",
         "start": "ts-node index.ts",
-        "dev": "docker run -d --rm --name scan-dev -p 27017:27017 mongo:4.2.16-rc0-bionic && nodemon --config nodemon.json"
+        "dev": "docker run -d --rm --name scan-dev -p 27017:27017 mongo:4.2.16-rc0-bionic && nodemon --config nodemon.json",
+        "make-image": "yarn build && docker build -t parallel-scan:latest ."
     },
     "devDependencies": {
         "@types/node": "^16.7.10",
