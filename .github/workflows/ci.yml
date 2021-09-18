@@ -1,20 +1,39 @@
-name: CI
-on: [push]
+name: Lint & Unit Tests
+
+on: push
 
 jobs:
-  test:
+  Lint:
+    name: Lint Check
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v2
-        with:
-          fetch-depth: 6
-      - uses: actions/setup-node@v1
-        with:
-          node-version: "15"
-          cache: npm
-      - name: Installing dependencies
-        run: npm i
-      - name: Linter
-        run: npm run lint
 
+      - name: Use node version 14
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14
+          registry-url: https://registry.npmjs.org
+
+      - name: Run lint
+        run: |
+          yarn
+          yarn lint
+  unit_tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Use node version 14
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14
+          registry-url: https://registry.npmjs.org
+
+      - name: Run unit tests
+        run: |
+          yarn
+          yarn test
