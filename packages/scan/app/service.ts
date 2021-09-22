@@ -14,6 +14,7 @@ interface ServiceOption {
 export class Service {
   static initBlockHeight: number
   static async build({ endpoint, url, blockNumber }: ServiceOption) {
+    logger.debug(`Build Service url:${url}, endpoint:${endpoint}, blockNumber:${blockNumber}`)
     await Api.init(endpoint)
     await Store.init(url)
     this.initBlockHeight = blockNumber
@@ -32,12 +33,13 @@ export class Service {
         await this.revertToFinalized()
         continue
       }
+      
       await scanner.processBlock(hash, blockNumber)
       await store.setLastBlock(blockNumber, hash.toHex())
       logger.debug(`Block#${blockNumber} indexed`)
     }
   }
-
+  
   private async restore() {
     // This block is ok cause it's committed at the last of workflow.
     const lastBlock = await store.lastBlockInfo()

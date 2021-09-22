@@ -2,6 +2,8 @@ import { BlockHash, Event } from '@polkadot/types/interfaces'
 import eventHandlers from './events'
 import { EventHandler } from '../types'
 import { api } from '../api'
+import { liquidationSolver } from './solvers/liquidation'
+import { store } from '../store'
 
 class Scanner {
   private handlers: { [section: string]: { [method: string]: EventHandler } }
@@ -21,6 +23,10 @@ class Scanner {
 
   async processBlock(hash: BlockHash, height: number) {
     const events = await api.query.system.events.at(hash)
+    // Scan the list of what needs to be liquidated
+    const shortfallRecords = await liquidationSolver.liquidate(height)
+    store.setLastShortfallRecords(height, shortfallRecords)
+    
     await Promise.all(
       events.map(({ event }) => this.handleEvent(event, height))
     )
