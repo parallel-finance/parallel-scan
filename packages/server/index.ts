@@ -1,5 +1,4 @@
 import express from 'express'
-let query = {}
 import { buildSchema } from 'graphql'
 import { graphqlHTTP } from 'express-graphql'
 import { Command } from 'commander'
@@ -35,12 +34,12 @@ async function main() {
   const app = express()
 
   program.parse()
-  let options = program.opts()
+  const options = program.opts()
   const client = new MongoClient(options.url)
   await client.connect()
   const db = client.db('parallel-scan')
 
-  let rootValue = {
+  const rootValue = {
     contributions: async () => {
       return await db.collection('auction').find({}).toArray()
     },
