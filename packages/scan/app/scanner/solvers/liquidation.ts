@@ -1,7 +1,7 @@
 import { api } from '../../api';
 import '@parallel-finance/types';
 import { AccountId, Liquidity, Shortfall } from '@parallel-finance/types/interfaces';
-import * as lds from 'lodash';
+import * as _ from 'lodash';
 import { logger } from '../../../app/logger';
 
 export type ShortfallRecord = {
@@ -35,7 +35,7 @@ export class LiquidationSolver {
       let borrowers = borrowerKeys.map(({ args: [_, accountId] }) => {
         return accountId;
       });
-      borrowers = lds.uniqWith(borrowers, lds.isEqual);
+      borrowers = _.uniqWith(borrowers, _.isEqual);
     
       const asyncFilter = async (arr: Array<AccountId>, predicate: (a: AccountId) => Promise<ShortfallRecord>) => {
         const results = await Promise.all(arr.map(predicate));

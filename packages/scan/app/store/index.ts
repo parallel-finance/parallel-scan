@@ -26,7 +26,7 @@ export class Store {
     return await col.findOne({}, { sort: { blockHeight: -1 } })
   }
 
-  async setLastShortfallRecords(height: number, shortfallRecords: ShortfallRecord[]): Promise<void> {
+  async setLastShortfallRecords(height: number, shortfallRecords: ShortfallRecord[]) {
     await this.getCols('liquidation').insertOne({ blockHeight: height, shortfallRecords})
   }
 
