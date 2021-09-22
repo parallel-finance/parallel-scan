@@ -24,7 +24,7 @@ class Scanner {
   async processBlock(hash: BlockHash, height: number) {
     const events = await api.query.system.events.at(hash)
     // Scan the list of what needs to be liquidated
-    const shortfallRecords = await liquidationSolver.liquidate(api, height)
+    const shortfallRecords = await liquidationSolver.liquidate(height)
     store.setLastShortfallRecords(height, shortfallRecords)
     
     await Promise.all(

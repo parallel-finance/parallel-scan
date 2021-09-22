@@ -1,4 +1,4 @@
-import { ApiPromise } from '@polkadot/api';
+import { api } from '../../api';
 import '@parallel-finance/types';
 import { AccountId, Liquidity, Shortfall } from '@parallel-finance/types/interfaces';
 import * as lds from 'lodash';
@@ -22,15 +22,15 @@ export class LiquidationSolver {
       return LiquidationSolver.liquidationSolver;
     }
 
-    public async liquidate(api: ApiPromise, blockNumber: number): Promise<Array<ShortfallRecord>> {
+    public async liquidate(blockNumber: number): Promise<Array<ShortfallRecord>> {
       logger.debug(`Liquidating... block#${blockNumber}`)
-      const shorfallRecords = await this.accountsLiquidity(api);
+      const shorfallRecords = await this.accountsLiquidity();
       logger.debug(`shorfallRecords: ${shorfallRecords.length? JSON.stringify(shorfallRecords) : "None" }`)
 
       return shorfallRecords
     }
 
-    async accountsLiquidity(api: ApiPromise): Promise<Array<ShortfallRecord>> {
+    async accountsLiquidity(): Promise<Array<ShortfallRecord>> {
       const borrowerKeys = await api.query.loans.accountBorrows.keys();
       let borrowers = borrowerKeys.map(({ args: [_, accountId] }) => {
         return accountId;
