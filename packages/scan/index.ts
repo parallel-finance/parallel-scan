@@ -20,7 +20,7 @@ program
 
 async function main() {
   program.parse()
-  let options = program.opts<Options>()
+  const options = program.opts<Options>()
   const service = await Service.build(options)
   await service.run()
 }
