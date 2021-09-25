@@ -1,12 +1,16 @@
-import { BlockHash, Call, Event, EventRecord } from '@polkadot/types/interfaces'
-import { logger } from '../logger'
+import { BlockHash, EventRecord } from '@polkadot/types/interfaces'
+import { Store } from '../store/index'
+import { ApiPromise } from '@polkadot/api'
+import { Logger } from 'winston'
 import { Crowdloan } from '../model/crowdloan'
-import { store } from '../store'
-import { api } from '../api'
-import { Collections } from '../model'
+import { Collections } from '../model/index'
 
-export class Scanner {
-  async processBlock(hash: BlockHash, height: number) {
+export const referralProcessor =
+  (store: Store, api: ApiPromise, logger: Logger) =>
+  async (
+    hash: BlockHash,
+    height: number
+  ): Promise<void> => {
     const events = await api.query.system.events.at(hash)
     const { block } = await api.rpc.chain.getBlock(hash)
     const timestamp = await api.query.timestamp.now.at(hash)
@@ -64,6 +68,3 @@ export class Scanner {
       }),
     ])
   }
-}
-
-export const scanner = new Scanner()

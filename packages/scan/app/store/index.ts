@@ -1,4 +1,4 @@
-import { Model } from './../model/index'
+import { Collections, Model } from './../model/index'
 import { Db, MongoClient } from 'mongodb'
 import { ALL_COLLECTIONS, CollectionKey } from '../model'
 import { BlockInfo } from '../model/blockInfo'
@@ -28,11 +28,11 @@ export class Store {
   }
 
   async setLastBlock(height: number, hash: string) {
-    await this.getCols('blockInfo').insertOne({ blockHeight: height, hash })
+    await this.getCols(Collections.blockInfo).insertOne({ blockHeight: height, hash })
   }
 
   async lastBlockInfo(): Promise<BlockInfo | null> {
-    return await this.getNewestRecordOf('blockInfo')
+    return await this.getNewestRecordOf(Collections.blockInfo)
   }
 
   async close() {
@@ -41,7 +41,7 @@ export class Store {
 
   /**
    * Drop document from given block number.
-   * @param blockNumber - Document will be deleted from where.
+   * @param height - Document will be deleted from where.
    */
   async resetTo(height: number) {
     const collections: CollectionKey[] = [...ALL_COLLECTIONS]

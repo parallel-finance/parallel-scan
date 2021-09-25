@@ -1,5 +1,7 @@
 import { CollectionCommon } from './common'
 
-export interface BlockInfo extends CollectionCommon {
+export type BlockInfoVO = {
   hash: string
 }
+
+export type BlockInfo = BlockInfoVO & CollectionCommon;

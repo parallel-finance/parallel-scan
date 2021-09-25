@@ -1,6 +1,6 @@
 import { CollectionCommon } from './common'
 
-export interface Crowdloan extends CollectionCommon {
+export type CrowdloanVO = {
   account: string
   amount: number
   referralCode: string
@@ -8,3 +8,5 @@ export interface Crowdloan extends CollectionCommon {
   extrinsicHash: string
   timestamp: string
 }
+
+export type Crowdloan = CrowdloanVO & CollectionCommon

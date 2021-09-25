@@ -4,19 +4,24 @@ import { Store, store } from './store'
 import { sleep } from './utils'
 import { logger } from './logger'
 import { Api, api } from './api'
+import { Processor } from './types'
 
 interface ServiceOption {
   endpoint: string
   url: string
   blockNumber: number
+  processor: Processor
 }
 
 export class Service {
   static initBlockHeight: number
-  static async build({ endpoint, url, blockNumber }: ServiceOption) {
+  static processor: Processor
+
+  static async build({ endpoint, url, blockNumber, processor }: ServiceOption) {
     await Api.init(endpoint)
     await Store.init(url)
     this.initBlockHeight = blockNumber
+    this.processor = processor
     return new Service()
   }
 

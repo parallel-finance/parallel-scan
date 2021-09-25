@@ -1,5 +1,6 @@
 import { CollectionCommon } from './common'
 
-export interface Staker extends CollectionCommon {
+export type StakerVO = {
   stakers: { [staker: string]: number }
 }
+export type Staker = StakerVO & CollectionCommon
