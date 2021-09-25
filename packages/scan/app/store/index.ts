@@ -2,6 +2,7 @@ import { Collections, Model } from './../model/index'
 import { Db, MongoClient } from 'mongodb'
 import { ALL_COLLECTIONS, CollectionKey } from '../model'
 import { BlockInfo } from '../model/blockInfo'
+import { ShortfallRecord } from '../model/liquidation'
 
 export class Store {
   private client: MongoClient
@@ -27,8 +28,21 @@ export class Store {
     return await col.findOne({}, { sort: { blockHeight: -1 } })
   }
 
+  async setLastShortfallRecords(
+    height: number,
+    shortfallRecords: ShortfallRecord[]
+  ) {
+    await this.getCols(Collections.liquidation).insertOne({
+      blockHeight: height,
+      shortfallRecords,
+    })
+  }
+
   async setLastBlock(height: number, hash: string) {
-    await this.getCols(Collections.blockInfo).insertOne({ blockHeight: height, hash })
+    await this.getCols(Collections.blockInfo).insertOne({
+      blockHeight: height,
+      hash,
+    })
   }
 
   async lastBlockInfo(): Promise<BlockInfo | null> {
@@ -44,6 +58,7 @@ export class Store {
    * @param height - Document will be deleted from where.
    */
   async resetTo(height: number) {
+    // TODO: only clear related collections, should not reset later if we only process the finalised block
     const collections: CollectionKey[] = [...ALL_COLLECTIONS]
     for (const key of collections) {
       await this.getCols(key).deleteMany({
