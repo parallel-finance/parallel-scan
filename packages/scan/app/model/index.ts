@@ -2,12 +2,16 @@ import { BlockInfo } from './blockInfo'
 import { Staker } from './staker'
 import { Crowdloan } from './crowdloan'
 
-export type CollectionKey = 'blockInfo' | 'staker' | 'crowdloan'
+export interface CollectionToModel {
+  blockInfo: BlockInfo
+  staker: Staker
+  crowdloan: Crowdloan
+}
 
-export type CollectionOf<T> = T extends 'blockInfo'
-  ? BlockInfo
-  : T extends 'staker'
-  ? Staker
-  : T extends 'crowdloan'
-  ? Crowdloan
-  : never
+export type CollectionKeys = keyof CollectionToModel
+
+export const ALL_COLLECTIONS = ['blockInfo', 'staker', 'crowdloan'] as const
+
+export type CollectionKey = typeof ALL_COLLECTIONS[number]
+
+export type Model<T extends CollectionKeys> = CollectionToModel[T]

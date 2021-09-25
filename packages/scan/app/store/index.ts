@@ -1,5 +1,6 @@
+import { Model } from './../model/index'
 import { Db, MongoClient } from 'mongodb'
-import { CollectionKey, CollectionOf } from '../model'
+import { ALL_COLLECTIONS, CollectionKey } from '../model'
 import { BlockInfo } from '../model/blockInfo'
 
 export class Store {
@@ -18,7 +19,7 @@ export class Store {
   }
 
   getCols<T extends CollectionKey>(key: T) {
-    return this.db.collection<CollectionOf<T>>(key)
+    return this.db.collection<Model<T>>(key)
   }
 
   async getNewestRecordOf<T extends CollectionKey>(key: T) {
@@ -43,7 +44,7 @@ export class Store {
    * @param blockNumber - Document will be deleted from where.
    */
   async resetTo(height: number) {
-    const collections: CollectionKey[] = ['blockInfo']
+    const collections: CollectionKey[] = [...ALL_COLLECTIONS]
     for (const key of collections) {
       await this.getCols(key).deleteMany({
         blockHeight: { $gt: height },
