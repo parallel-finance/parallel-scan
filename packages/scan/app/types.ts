@@ -1,3 +1,8 @@
-import { Event } from '@polkadot/types/interfaces'
+import { BlockHash } from '@polkadot/types/interfaces'
+import { Store } from './store'
+import { ApiPromise } from '@polkadot/api'
 
-export type EventHandler = (event: Event, height: number) => Promise<void>
+export type Processor = (
+  store: Store,
+  api: ApiPromise
+) => (hash: BlockHash, height: number, store: Store) => void

@@ -4,20 +4,24 @@ import { Store, store } from './store'
 import { sleep } from './utils'
 import { logger } from './logger'
 import { Api, api } from './api'
+import { Processor } from './types'
 
 interface ServiceOption {
   endpoint: string
   url: string
   blockNumber: number
+  processor: Processor
 }
 
 export class Service {
   static initBlockHeight: number
-  static async build({ endpoint, url, blockNumber }: ServiceOption) {
-    logger.debug(`Build Service url:${url}, endpoint:${endpoint}, blockNumber:${blockNumber}`)
+  static processor: Processor
+
+  static async build({ endpoint, url, blockNumber, processor }: ServiceOption) {
     await Api.init(endpoint)
     await Store.init(url)
     this.initBlockHeight = blockNumber
+    this.processor = processor
     return new Service()
   }
 
@@ -33,13 +37,12 @@ export class Service {
         await this.revertToFinalized()
         continue
       }
-      
       await scanner.processBlock(hash, blockNumber)
       await store.setLastBlock(blockNumber, hash.toHex())
       logger.debug(`Block#${blockNumber} indexed`)
     }
   }
-  
+
   private async restore() {
     // This block is ok cause it's committed at the last of workflow.
     const lastBlock = await store.lastBlockInfo()
@@ -54,8 +57,10 @@ export class Service {
     const genesisHash = await api.rpc.chain.getBlockHash(
       Service.initBlockHeight
     )
-    logger.debug(`Init genesis blcok: ${genesisHash.toHex()}`)
-    await store.setLastBlock(0, genesisHash.toHex())
+    logger.debug(
+      `Init blcok from ${Service.initBlockHeight}: ${genesisHash.toHex()}`
+    )
+    await store.setLastBlock(Service.initBlockHeight, genesisHash.toHex())
   }
 
   private async upcomingBlock(): Promise<[number, BlockHash]> {

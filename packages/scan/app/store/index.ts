@@ -1,13 +1,15 @@
+import { Collections, Model } from './../model/index'
 import { Db, MongoClient } from 'mongodb'
-import { CollectionKey, CollectionOf } from '../model'
+import { ALL_COLLECTIONS, CollectionKey } from '../model'
 import { BlockInfo } from '../model/blockInfo'
-import { ShortfallRecord } from '../scanner/solvers/liquidation'
+import { ShortfallRecord } from '../model/liquidation'
+
 export class Store {
   private client: MongoClient
   private db: Db
 
   private constructor(client: MongoClient) {
-    this.db = client.db('parallel-scan')
+    this.db = client.db()
     this.client = client
   }
 
@@ -18,7 +20,7 @@ export class Store {
   }
 
   getCols<T extends CollectionKey>(key: T) {
-    return this.db.collection<CollectionOf<T>>(key)
+    return this.db.collection<Model<T>>(key)
   }
 
   async getNewestRecordOf<T extends CollectionKey>(key: T) {
@@ -26,16 +28,25 @@ export class Store {
     return await col.findOne({}, { sort: { blockHeight: -1 } })
   }
 
-  async setLastShortfallRecords(height: number, shortfallRecords: ShortfallRecord[]) {
-    await this.getCols('liquidation').insertOne({ blockHeight: height, shortfallRecords})
+  async setLastShortfallRecords(
+    height: number,
+    shortfallRecords: ShortfallRecord[]
+  ) {
+    await this.getCols(Collections.liquidation).insertOne({
+      blockHeight: height,
+      shortfallRecords,
+    })
   }
 
   async setLastBlock(height: number, hash: string) {
-    await this.getCols('blockInfo').insertOne({ blockHeight: height, hash })
+    await this.getCols(Collections.blockInfo).insertOne({
+      blockHeight: height,
+      hash,
+    })
   }
 
   async lastBlockInfo(): Promise<BlockInfo | null> {
-    return await this.getNewestRecordOf('blockInfo')
+    return await this.getNewestRecordOf(Collections.blockInfo)
   }
 
   async close() {
@@ -44,10 +55,11 @@ export class Store {
 
   /**
    * Drop document from given block number.
-   * @param blockNumber - Document will be deleted from where.
+   * @param height - Document will be deleted from where.
    */
   async resetTo(height: number) {
-    const collections: CollectionKey[] = ['blockInfo']
+    // TODO: only clear related collections, should not reset later if we only process the finalised block
+    const collections: CollectionKey[] = [...ALL_COLLECTIONS]
     for (const key of collections) {
       await this.getCols(key).deleteMany({
         blockHeight: { $gt: height },

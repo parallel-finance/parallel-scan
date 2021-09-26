@@ -1,6 +1,12 @@
 import { CollectionCommon } from './common'
-import { ShortfallRecord } from 'app/scanner/solvers/liquidation'
 
-export interface Liquidation extends CollectionCommon {
-    shortfallRecords: ShortfallRecord[]
+export type ShortfallRecord = {
+  borrower: string;
+  liquidity: string;
+  shortfall: string;
+  status: number;
 }
+
+export type Liquidation = {
+  shortfallRecords: ShortfallRecord[]
+} & CollectionCommon
