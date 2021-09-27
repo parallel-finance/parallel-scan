@@ -1,8 +1,10 @@
 import { BlockHash } from '@polkadot/types/interfaces'
 import { Store } from './store'
 import { ApiPromise } from '@polkadot/api'
+import { Logger } from 'winston'
 
 export type Processor = (
   store: Store,
-  api: ApiPromise
-) => (hash: BlockHash, height: number, store: Store) => void
+  api: ApiPromise,
+  logger: Logger
+) => (hash: BlockHash, height: number) => void

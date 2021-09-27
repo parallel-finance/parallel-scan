@@ -1,5 +1,4 @@
 import { BlockHash } from '@polkadot/types/interfaces'
-import { scanner } from './scanner'
 import { Store, store } from './store'
 import { sleep } from './utils'
 import { logger } from './logger'
@@ -37,7 +36,7 @@ export class Service {
         await this.revertToFinalized()
         continue
       }
-      await scanner.processBlock(hash, blockNumber)
+      await Service.processor(store, api, logger)(hash, blockNumber)
       await store.setLastBlock(blockNumber, hash.toHex())
       logger.debug(`Block#${blockNumber} indexed`)
     }

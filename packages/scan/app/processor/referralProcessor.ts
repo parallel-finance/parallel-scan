@@ -1,22 +1,23 @@
 import { BlockHash, EventRecord } from '@polkadot/types/interfaces'
-import { Store } from '../store/index'
+import { Store } from '../store'
 import { ApiPromise } from '@polkadot/api'
 import { Logger } from 'winston'
 import { Crowdloan } from '../model/crowdloan'
-import { Collections } from '../model/index'
+import { Collections } from '../model'
 
 export const referralProcessor =
   (store: Store, api: ApiPromise, logger: Logger) =>
-  async (
-    hash: BlockHash,
-    height: number
-  ): Promise<void> => {
+  async (hash: BlockHash, height: number): Promise<void> => {
+    logger.debug(`start processing block`)
     const events = await api.query.system.events.at(hash)
+    logger.debug(`get block`)
     const { block } = await api.rpc.chain.getBlock(hash)
+    logger.debug(`get timestamp`)
     const timestamp = await api.query.timestamp.now.at(hash)
 
     await Promise.all([
       block.extrinsics.map(async (ex, index) => {
+        logger.debug(`process extrinsic: ${index}`)
         const filteredEvent = events.filter(
           ({ phase }) =>
             phase.isApplyExtrinsic && phase.asApplyExtrinsic.eq(index)
@@ -63,7 +64,9 @@ export const referralProcessor =
             extrinsicHash: ex.hash.toHex(),
             timestamp: timestamp.toString(),
           }
+          logger.debug(`save crowdloan: ${index}`)
           await store.getCols(Collections.crowdloan).insertOne(record)
+          logger.debug(`crowdloan saved: ${index}`)
         }
       }),
     ])
