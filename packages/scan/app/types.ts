@@ -8,3 +8,5 @@ export type Processor = (
   api: ApiPromise,
   logger: Logger
 ) => (hash: BlockHash, height: number) => void
+
+export type Maybe<T> = T | undefined | null;
