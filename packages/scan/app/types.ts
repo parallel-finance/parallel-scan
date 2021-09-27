@@ -1,12 +1,12 @@
-import { BlockHash } from '@polkadot/types/interfaces'
 import { Store } from './store'
 import { ApiPromise } from '@polkadot/api'
 import { Logger } from 'winston'
+import { BlockInfo } from './model/blockInfo'
 
 export type Processor = (
   store: Store,
   api: ApiPromise,
   logger: Logger
-) => (hash: BlockHash, height: number) => void
+) => (newBlock: BlockInfo) => void
 
-export type Maybe<T> = T | undefined | null;
+export type Maybe<T> = T | undefined | null

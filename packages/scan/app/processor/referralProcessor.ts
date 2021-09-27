@@ -30,9 +30,10 @@ const hasSucceededCrowdloanExtrinsic = (
 
 export const referralProcessor =
   (store: Store, api: ApiPromise, logger: Logger) =>
-  async (hash: BlockHash, height: number): Promise<void> => {
+  async ({ blockHeight, hash }): Promise<void> => {
     logger.debug(`start processing block`)
     const events: Vec<EventRecord> = await api.query.system.events.at(hash)
+    logger.debug(`checking block`)
     if (!hasSucceededCrowdloanExtrinsic(api, events)) {
       return
     }
@@ -77,7 +78,7 @@ export const referralProcessor =
           return null
         }
         const crowdloan: Crowdloan = {
-          blockHeight: height,
+          blockHeight: blockHeight,
           amount: parseInt(value),
           account: contributeAccount,
           referralCode: memo,
