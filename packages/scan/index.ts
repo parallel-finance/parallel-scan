@@ -21,7 +21,7 @@ program
   .option(
     '-N, --block-number <number>',
     'The block number where we scan from',
-    '0' // for referral, use 310959 to test
+    '310959' // for referral, use 310959 to test
   )
   .option(
     '-B, --business <string>',
