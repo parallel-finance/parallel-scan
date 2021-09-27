@@ -21,7 +21,7 @@ program
   .option(
     '-N, --block-number <number>',
     'The block number where we scan from',
-    '0' // for referral, use 310959 to test
+    '352453' // for referral, use 352453 to test crowdloan and referral
   )
   .option(
     '-B, --business <string>',
