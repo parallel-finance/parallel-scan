@@ -4,6 +4,7 @@ import { sleep } from './utils'
 import { logger } from './logger'
 import { Api, api } from './api'
 import { Processor } from './types'
+import { BlockInfo } from './model/blockInfo'
 
 interface ServiceOption {
   endpoint: string
@@ -25,24 +26,33 @@ export class Service {
   }
 
   async run() {
-    await this.restore()
+    let lastBlockInfo: BlockInfo = await this.restore()
     while (true) {
-      const [blockNumber, hash] = await this.upcomingBlock()
-      logger.debug(`Receive upcoming block#${blockNumber}: ${hash.toString()}`)
+      const newBlock: BlockInfo = await this.upcomingBlock(lastBlockInfo)
+      logger.debug(
+        `Receive upcoming block#${
+          newBlock.blockHeight
+        }: ${newBlock.hash.toString()}`
+      )
 
-      /// Revert to nearest finalized block
-      if (await this.isForkedBlock(hash)) {
-        logger.debug(`Fork block#${blockNumber}:${hash} detected`)
+      // Revert to nearest finalized block
+      logger.debug(`check if is forkedBlock`);
+      if (await this.isForkedBlock(newBlock.hash)) {
+        logger.debug(
+          `Fork block#${newBlock.blockHeight}:${newBlock.hash} detected`
+        )
         await this.revertToFinalized()
         continue
       }
-      await Service.processor(store, api, logger)(hash, blockNumber)
-      await store.setLastBlock(blockNumber, hash.toHex())
-      logger.debug(`Block#${blockNumber} indexed`)
+      await Service.processor(store, api, logger)(newBlock)
+      logger.debug(`update the lastBlock in db`);
+      await store.setLastBlock(newBlock)
+      logger.debug(`Block#${newBlock.blockHeight} indexed`)
+      lastBlockInfo = newBlock
     }
   }
 
-  private async restore() {
+  private async restore(): Promise<BlockInfo> {
     // This block is ok cause it's committed at the last of workflow.
     const lastBlock = await store.lastBlockInfo()
     if (lastBlock) {
@@ -50,7 +60,7 @@ export class Service {
         `Drop block till #${lastBlock.blockHeight}:${lastBlock.hash}`
       )
       await store.resetTo(lastBlock.blockHeight)
-      return
+      return lastBlock
     }
 
     const genesisHash = await api.rpc.chain.getBlockHash(
@@ -59,11 +69,16 @@ export class Service {
     logger.debug(
       `Init blcok from ${Service.initBlockHeight}: ${genesisHash.toHex()}`
     )
-    await store.setLastBlock(Service.initBlockHeight, genesisHash.toHex())
+    let initBlock = {
+      blockHeight: Service.initBlockHeight,
+      hash: genesisHash.toHex(),
+    }
+    await store.setLastBlock(initBlock)
+    return initBlock
   }
 
-  private async upcomingBlock(): Promise<[number, BlockHash]> {
-    const { blockHeight } = (await store.lastBlockInfo())!
+  private async upcomingBlock(currentBlock: BlockInfo): Promise<BlockInfo> {
+    const { blockHeight } = currentBlock
     const currentBlockNumber = blockHeight + 1
     while (true) {
       const hash = await api.rpc.chain.getBlockHash(currentBlockNumber)
@@ -71,14 +86,17 @@ export class Service {
         hash.toString() !==
         '0x0000000000000000000000000000000000000000000000000000000000000000'
       ) {
-        return [currentBlockNumber, hash]
+        return {
+          blockHeight: currentBlockNumber,
+          hash: hash.toString(),
+        }
       }
       logger.debug('Waiting for new block ...')
       await sleep(6000)
     }
   }
 
-  private async isForkedBlock(hash: BlockHash) {
+  private async isForkedBlock(hash: string) {
     const { hash: lastHash } = (await store.lastBlockInfo())!
     const { parentHash } = await api.rpc.chain.getHeader(hash)
     return parentHash.toHex() !== lastHash

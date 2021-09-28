@@ -38,11 +38,8 @@ export class Store {
     })
   }
 
-  async setLastBlock(height: number, hash: string) {
-    await this.getCols(Collections.blockInfo).insertOne({
-      blockHeight: height,
-      hash,
-    })
+  async setLastBlock(blockInfo: BlockInfo) {
+    await this.getCols(Collections.blockInfo).insertOne(blockInfo)
   }
 
   async lastBlockInfo(): Promise<BlockInfo | null> {
