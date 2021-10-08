@@ -1,5 +1,6 @@
 import { Command } from 'commander'
 import { Service } from './app/service'
+import dotenv from 'dotenv';
 import { referralProcessor } from './app/processor/referralProcessor'
 
 interface Options {
@@ -9,24 +10,26 @@ interface Options {
   business: string
 }
 
+dotenv.config()
+
 const program = new Command('parallel-scan')
 program
-  .version('0.0.1', '-v, --version', 'The parallel scanner version.')
+  .version(process.env.VERSION || "0.0.1", '-v, --version', 'The parallel scanner version.')
   .option(
     '--endpoint <string>',
     'Parallel endpoint',
-    'wss://testnet-relay-rpc.parallel.fi'
+    process.env.PARALLEL_ENDPOINT || 'ws://localhost:9947'
   )
   .option('--url <string>', 'The mongodb url', 'mongodb://localhost:27017')
   .option(
     '-N, --block-number <number>',
     'The block number where we scan from',
-    '352453' // for referral, use 352453 to test crowdloan and referral
+    process.env.BLOCK_NUMBER || "0" // for referral, use 352453 to test crowdloan and referral
   )
   .option(
     '-B, --business <string>',
     'The business that this scanner support',
-    'referral'
+    process.env.BUSINESS || "referral"
   )
 
 const businessProcessorMap = {

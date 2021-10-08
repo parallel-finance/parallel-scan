@@ -412,9 +412,12 @@ __metadata:
   resolution: "@parallel-finance/scan@workspace:packages/scan"
   dependencies:
     "@parallel-finance/api": ^1.1.2
+    "@polkadot/api": ^5.6.2-5
+    "@polkadot/rpc-core": ^5.6.2-5
+    "@polkadot/types": ^5.6.2-5
     "@types/node": ^16.7.10
     commander: ^8.1.0
-    lodash: ^4.17.21
+    dotenv: ^10.0.0
     mongodb: ^4.1.1
     nodemon: ^2.0.12
     ts-node: ^10.2.1
@@ -1781,6 +1784,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"dotenv@npm:^10.0.0":
+  version: 10.0.0
+  resolution: "dotenv@npm:10.0.0"
+  checksum: f412c5fe8c24fbe313d302d2500e247ba8a1946492db405a4de4d30dd0eb186a88a43f13c958c5a7de303938949c4231c56994f97d05c4bc1f22478d631b4005
+  languageName: node
+  linkType: hard
+
 "duplexer3@npm:^0.1.4":
   version: 0.1.4
   resolution: "duplexer3@npm:0.1.4"
@@ -2974,13 +2984,6 @@ fsevents@~2.3.2:
   version: 4.6.2
   resolution: "lodash.merge@npm:4.6.2"
   checksum: ad580b4bdbb7ca1f7abf7e1bce63a9a0b98e370cf40194b03380a46b4ed799c9573029599caebc1b14e3f24b111aef72b96674a56cfa105e0f5ac70546cdc005
-  languageName: node
-  linkType: hard
-
-"lodash@npm:^4.17.21":
-  version: 4.17.21
-  resolution: "lodash@npm:4.17.21"
-  checksum: eb835a2e51d381e561e508ce932ea50a8e5a68f4ebdd771ea240d3048244a8d13658acbd502cd4829768c56f2e16bdd4340b9ea141297d472517b83868e677f7
   languageName: node
   linkType: hard
 
