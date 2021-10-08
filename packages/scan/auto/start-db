@@ -1,0 +1,1 @@
+docker run -d --rm --name scan-dev -p 27017:27017 mongo:latest

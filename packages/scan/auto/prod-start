@@ -1,0 +1,8 @@
+docker run -d --rm \
+    --name parallel-scan \
+    -e VERSION=0.1.0 \
+    -e PARALLEL_ENDPOINT=wss://testnet-relay-rpc.parallel.fi #FIX ME\
+    -e MONGO_URL=mongodb://192.168.0.103:27017 #FIX ME\
+    -e BLOCK_NUMBER=0 #FIX ME\
+    -e BUSINESS=referral \
+    parallel-scan:latest
