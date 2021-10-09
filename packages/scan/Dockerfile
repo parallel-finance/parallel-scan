@@ -1,10 +1,10 @@
-FROM node:14.17
-COPY releases/ /parallel-scan
-COPY package.json /parallel-scan
-WORKDIR /parallel-scan
+FROM node:14.17-alpine
+ENV NODE_ENV=production
 
-RUN yarn install --prod
-RUN echo '#!/bin/bash\nnode index.js $@' > ./entrypoint.sh
-RUN chmod u+x ./entrypoint.sh
+WORKDIR /app
+COPY ["package.json", "package-lock.json*", "./"]
+RUN npm install --production && npm install -g ts-node
 
-ENTRYPOINT ["/parallel-scan/entrypoint.sh"]
+COPY . .
+
+CMD [ "ts-node", "index.ts" ]
