@@ -1,6 +1,3 @@
-#bin/bash
-
-
 docker run -d --rm \
     --name parallel-scan \
     -e PARALLEL_ENDPOINT=wss://testnet-relay-rpc.parallel.fi \
@@ -8,6 +5,3 @@ docker run -d --rm \
     -e BLOCK_NUMBER=0\
     -e BUSINESS=referral \
     parallelfinance/parallel-scan:v1.0.3-referral
-
-docker pull parallelfinance/parallel-scan:v1.0.3-referral
-auto/prod-start-referral mongodb://192.168.0.103:27017
