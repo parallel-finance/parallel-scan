@@ -27,6 +27,10 @@ export class Service {
 
   async run() {
     let lastBlockInfo: BlockInfo = await this.restore()
+    const finalizedHash = await api.rpc.chain.getFinalizedHead()
+    const finalizedHeight = (
+      await api.rpc.chain.getHeader(finalizedHash)
+    ).number.toNumber()
     while (true) {
       const newBlock: BlockInfo = await this.upcomingBlock(lastBlockInfo)
       logger.debug(
@@ -36,16 +40,19 @@ export class Service {
       )
 
       // Revert to nearest finalized block
-      logger.debug(`check if is forkedBlock`);
-      if (await this.isForkedBlock(newBlock.hash)) {
+      logger.debug(`check if is forkedBlock`)
+      if (
+        newBlock.blockHeight > finalizedHeight &&
+        (await this.isForkedBlock(newBlock.hash))
+      ) {
         logger.debug(
           `Fork block#${newBlock.blockHeight}:${newBlock.hash} detected`
         )
         await this.revertToFinalized()
         continue
       }
-      await Service.processor(store, api, logger)(newBlock)
-      logger.debug(`update the lastBlock in db`);
+      Service.processor(store, api, logger)(newBlock)
+      logger.debug(`update the lastBlock in db`)
       await store.setLastBlock(newBlock)
       logger.debug(`Block#${newBlock.blockHeight} indexed`)
       lastBlockInfo = newBlock
